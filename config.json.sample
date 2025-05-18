@@ -1,0 +1,79 @@
+{
+  "api": {
+    "headers": {
+      "X-Header": "X-Header-Value",
+    }
+  },
+  "items_api": {
+    "url": "https://www.sample.com/{namespace}",
+    "placeholders": {
+      "namespace": "sample"
+    },
+    "query_params": {
+      "limit": "36",
+      "page": "{iterable}"
+    },
+    "delay": {
+      "min": 1,
+      "max": 5
+    },
+    "response": {
+      "total_pages": "$totalPages",
+      "return": "$items",
+      "id": "$id"
+    },
+    "save_as": "item"
+  },
+  "details_api": {
+    "url": "https://www.sample.com/{namespace}/details/{id}",
+    "placeholders": {
+      "namespace": "sample",
+      "id": "$id"
+    },
+    "delay": {
+      "min": 3,
+      "max": 4
+    },
+    "save_as": "details"
+  }
+  "processor": {
+    "title": {
+      "path": "$item.title",
+      "default": "-"
+    },
+    "predicate_value": {
+      "path": "$item.title",
+      "predicate": {
+        "VALUE_1": [
+          "Val_1"
+        ],
+        "VALUE_2": [
+          "Val_2",
+      },
+      "default": ""
+    },
+    "template_value": {
+      "path": "$item.id",
+      "template": "https://www.sample.com/view/{value}",
+      "default": 0
+    }
+  },
+  "writers": [
+    {
+      "file": "resources/sample.csv",
+      "separator": ";",
+      "properties": [
+        "title",
+        "predicate_value",
+        "template_value"
+      ],
+      "filters": [
+          {
+            "type": "equals",
+            "property": "predicate_value",
+            "value": "VALUE_1"
+          }
+      ]
+    }
+  ]
+}
