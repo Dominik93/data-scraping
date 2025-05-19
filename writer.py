@@ -21,10 +21,31 @@ emoji_pattern = re.compile("["
                            "]+", flags=re.UNICODE)
 
 
+def _sanitize(row):
+    return emoji_pattern.sub(r'', row).replace("\xb2", "")
+
+
+def _compare(type, item_value, value):
+    if type == 'equals':
+        return value == item_value
+    return False
+
+
 def _filter(item, applied_filter):
-    value = item[applied_filter['property']]
-    if applied_filter['type'] == 'equals':
-        return value == applied_filter['value']
+    item_value = item[applied_filter['property']]
+    operator = applied_filter['operator']
+    type = applied_filter['type']
+    values = applied_filter['value'] if isinstance(applied_filter['value'], list) else [applied_filter['value']]
+    if operator == 'AND':
+        result = True
+        for value in values:
+            result = result and _compare(type, item_value, value)
+        return result
+    if operator == 'OR':
+        result = False
+        for value in values:
+            result = result or _compare(type, item_value, value)
+        return result
     return False
 
 
@@ -40,17 +61,25 @@ def _filter_items(config, items):
     return filtered_items
 
 
+def _write_item(file, item, properties, separator):
+    try:
+        file.write(_sanitize(separator.join(list(map(lambda x: str(item[x]), properties)))) + '\n')
+    except Exception as e:
+        print(f'Exception when writing {item}. {e}')
+
+
+def _write(writer, file, items):
+    properties = writer['properties']
+    separator = writer['separator']
+    file.write(separator.join(properties) + "\n")
+    for item in items:
+        _write_item(file, item, properties, separator)
+
+
 def write(config, items):
     for writer in config:
         file_name = writer['file']
-        separator = writer['separator']
         print(f'Write {file_name}')
-        with open(file_name, "w") as f:
-            properties = writer['properties']
-            f.write(separator.join(properties) + "\n")
-            for item in _filter_items(writer, items):
-                try:
-                    row = separator.join(list(map(lambda x: str(item[x]), properties)))
-                    f.write(emoji_pattern.sub(r'', row).replace("\xb2", "") + '\n')
-                except Exception as e:
-                    print(f'Exception when writing {item}. {e}')
+        with open(file_name, "w", encoding="utf-8") as f:
+            filtered_items = _filter_items(writer, items)
+            _write(writer, f, filtered_items)

@@ -68,11 +68,12 @@
         "template_value"
       ],
       "filters": [
-          {
-            "type": "equals",
-            "property": "predicate_value",
-            "value": "VALUE_1"
-          }
+        {
+          "type": "equals",
+          "property": "predicate_value",
+          "operator": "OR",
+          "value": ["VALUE_1", "VALUE_2"]
+        }
       ]
     }
   ]

@@ -48,9 +48,9 @@ class ItemLoader:
         self.config = config
         self.client = client
 
-    def load_items(self, cached_items: dict) -> list[dict]:
-        items = self._get_pages()
-        return provide_countable(items, lambda x: self._load(x, cached_items))
+    def load_items(self, stored_items_by_id: dict) -> list[dict]:
+        all_items = self._get_pages()
+        return provide_countable(all_items, lambda x: self._load(x, stored_items_by_id))
 
     def _load(self, item, cached_items: dict) -> dict:
         items_save_as = self.config['items_api']['save_as']
