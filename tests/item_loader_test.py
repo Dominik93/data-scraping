@@ -1,6 +1,6 @@
 import unittest
 
-from items_loader import ItemLoader, HttpClient
+from items_loader import ItemLoader, HttpClient, ApiResponse
 
 config = {
     "api": {
@@ -53,7 +53,7 @@ class MockHttpClient(HttpClient):
         self.mock = mock
 
     def call(self, req):
-        return self.mock[req.full_url]
+        return ApiResponse(self.mock[req.full_url], [])
 
 
 class ItemLoaderTestCase(unittest.TestCase):
@@ -67,8 +67,8 @@ class ItemLoaderTestCase(unittest.TestCase):
         }
 
         actual = ItemLoader(config, MockHttpClient(mocks)).load_items({})
-        expected = [{'details': {"data": {}}, 'item': {'id': '1'}},
-                    {'details': {"data": {}}, 'item': {'id': '2'}}]
+        expected = [{'id': '1', 'details': {"data": {}}, 'item': {'id': '1'}},
+                    {'id': '2', 'details': {"data": {}}, 'item': {'id': '2'}}]
         self.assertEqual(expected, actual)
 
 

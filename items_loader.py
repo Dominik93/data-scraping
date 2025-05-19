@@ -2,6 +2,7 @@ import gzip
 import json
 import random
 import time
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from configuration_reader import read_configuration
@@ -13,16 +14,32 @@ class LoadException(Exception):
     pass
 
 
+class ApiResponse:
+
+    def __init__(self, content, headers):
+        self.content = content
+        self.headers = headers
+
+    def content_encoding(self):
+        return self.headers['content-encoding'] if 'content-encoding' in self.headers else ""
+
+
 class HttpClient:
 
-    def call(self, req):
+    def call(self, req) -> ApiResponse:
         pass
 
 
 class UrlHttpClient(HttpClient):
 
     def call(self, req):
-        return urlopen(req).read()
+        try:
+            response = urlopen(req)
+            return ApiResponse(response.read(), response.headers)
+        except HTTPError as he:
+            print(he.reason)
+            print(he.read())
+            raise
 
 
 class ItemLoader:
@@ -61,16 +78,13 @@ class ItemLoader:
         return items
 
     def _get_page(self, iterable: int) -> dict:
-        compress = self.config['items_api']['response']['compress']
         delay = self.config['items_api']['delay']
         url = self._prepare_items_api_url(iterable)
         print(f'{url}')
         time.sleep(random.randint(delay['min'], delay['max']))
         req = self._prepare_request(url)
-        content = self.client.call(req)
-        if compress == "gzip":
-            return json.loads(gzip.decompress(content))
-        return json.loads(content)
+        response = self.client.call(req)
+        return self._get_response(response)
 
     def _prepare_items_api_url(self, iterable):
         url = self.config['items_api']['url']
@@ -102,19 +116,21 @@ class ItemLoader:
 
     def _get_details(self, item: dict):
         try:
-            compress = self.config['items_api']['response']['compress']
             url = self._prepare_details_api_url(item)
             print(f'{url}')
             req = self._prepare_request(url)
             delay = self.config['details_api']['delay']
             time.sleep(random.randint(delay['min'], delay['max']))
-            content = self.client.call(req)
-            if compress == "gzip":
-                return json.loads(gzip.decompress(content))
-            return json.loads(content)
+            response = self.client.call(req)
+            return self._get_response(response)
         except Exception as e:
             print(f"An exception occurred when get details. {e}")
             raise LoadException(f"An exception occurred when get details")
+
+    def _get_response(self, response):
+        if response.content_encoding() == "gzip":
+            return json.loads(gzip.decompress(response.content))
+        return json.loads(response.content)
 
     def _prepare_request(self, url: str) -> Request:
         req = Request(url)
