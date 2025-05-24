@@ -7,12 +7,12 @@ from writer import write
 
 def _load():
     store = create_store(Storage.JSON)
-    stored_items = store.load(lambda: [], "resources/items")
+    stored_items = store.load(lambda: [], "resources/items/items")
     stored_items_by_id = {value['id']: value for index, value in enumerate(stored_items)}
     config = read_configuration("config")['loader']
     loaded_items = ItemLoader(config, UrlHttpClient()).load_items(stored_items_by_id)
     new_items = _add_new_items(loaded_items, stored_items_by_id)
-    store.store(new_items, 'resources/items')
+    store.store(new_items, 'resources/items/items')
     return new_items
 
 
@@ -28,7 +28,7 @@ def _add_new_items(loaded_items, stored_items_by_id):
 
 def _load_stored():
     store = create_store(Storage.JSON)
-    return store.load(lambda: [], "resources/items")
+    return store.load(lambda: [], "resources/items/items")
 
 
 def _process(items_to_process):
@@ -42,6 +42,6 @@ def _write(items_to_write):
 
 
 if __name__ == '__main__':
-    items = _load()
+    items = _load_stored()
     items = _process(items)
     _write(items)

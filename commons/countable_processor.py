@@ -6,6 +6,7 @@ from enum import Enum
 class ExceptionStrategy(Enum):
     PASS = 1
     INTERRUPT = 2
+    ASK = 3
 
 
 class CountableProcessor:
@@ -26,6 +27,10 @@ class CountableProcessor:
                 item_duration = self._get_duration(item_start)
                 all_duration = self._get_duration(all_start)
                 print(f'Exception {e} during iteration {idx + 1}/{total} {item_duration}/{all_duration}ms')
+                if self.exception_strategy == ExceptionStrategy.ASK:
+                    retry = input("You want to continue? Y/N")
+                    if retry == 'N':
+                        return self.results
                 if self.exception_strategy == ExceptionStrategy.INTERRUPT:
                     print(f'Processing interrupted, returning already processed items')
                     return self.results

@@ -1,8 +1,11 @@
 {
   "api": {
     "headers": {
-      "X-Header": "X-Header-Value",
-    }
+      "map": {
+        "X-Header": "X-Header-Value",
+      },
+      "curl": " -H \"X-Header: X-Header-Value\" "
+    },
   },
   "items_api": {
     "url": "https://www.sample.com/{namespace}",
