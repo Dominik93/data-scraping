@@ -6,7 +6,7 @@ from processor import process_items
 class ProcessorTestCase(unittest.TestCase):
     def test_process_items_with_expression(self):
         processor_config = {"value": {"path": "$item.value", "default": 0},
-                            "calculated_value": {"expression": "round(current['value'], 0)"}}
+                            "calculated_value": {"expression": "round(current['value'], 0)", "default": 0}}
         samples = [{"item": {"value": 2.3}}]
         actual = process_items(processor_config, samples)
         expected = [{"value": 2.3, "calculated_value": 2}]

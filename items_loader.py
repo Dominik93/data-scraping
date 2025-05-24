@@ -5,8 +5,8 @@ import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from configuration_reader import read_configuration
-from count_executor import provide_countable
+from commons.configuration_reader import read_configuration
+from commons.countable_processor import CountableProcessor
 from dict_util import _get_path_or_default
 
 
@@ -50,7 +50,7 @@ class ItemLoader:
 
     def load_items(self, stored_items_by_id: dict) -> list[dict]:
         all_items = self._get_pages()
-        return provide_countable(all_items, lambda x: self._load(x, stored_items_by_id))
+        return CountableProcessor(lambda x: self._load(x, stored_items_by_id)).run(all_items)
 
     def _load(self, item, cached_items: dict) -> dict:
         items_save_as = self.config['items_api']['save_as']
@@ -141,6 +141,6 @@ class ItemLoader:
 
 
 if __name__ == '__main__':
-    config = read_configuration()['loader']
+    config = read_configuration("config")['loader']
     items = ItemLoader(config, UrlHttpClient()).load_items({})
     print(str(items))

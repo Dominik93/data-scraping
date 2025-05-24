@@ -1,14 +1,19 @@
 import json
 import os.path
 import pickle
+from enum import Enum
 
 
-def create_store(name: str):
-    if name == 'pickle':
+class Storage(Enum):
+    PICKLE = 1
+    JSON = 2
+
+
+def create_store(storage: Storage):
+    if storage == Storage.PICKLE:
         return PickleStore()
-    if name == 'json':
+    if storage == Storage.JSON:
         return JsonStore()
-    raise Exception(f"Store {name} not found.")
 
 
 class Store:
@@ -20,12 +25,16 @@ class Store:
 
     def load(self, supplier, storage):
         if os.path.isfile(storage + "." + self.extension):
-            return self.loader(storage + "." + self.extension)
+            obj = self.loader(storage + "." + self.extension)
+            print(f'Loaded from store {len(obj)} items')
+            return obj
         obj = supplier()
+        print(f'Load from supplier {len(obj)} items')
         self.saver(obj, storage + "." + self.extension)
         return obj
 
     def store(self, obj, storage):
+        print(f'Store {len(obj)} items')
         self.saver(obj, storage + "." + self.extension)
 
 
