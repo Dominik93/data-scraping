@@ -1,7 +1,7 @@
 import re
 
 
-def _get_path_or_default(item, path: str, default: any = '') -> dict | list | str | int:
+def get_path_or_default(item, path: str, default: any = '') -> dict | list | str | int:
     property_names = path.replace("$", "").split(".")
     return _get_or_default(item, property_names, default)
 

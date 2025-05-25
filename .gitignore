@@ -174,8 +174,8 @@ cython_debug/
 .pypirc
 
 
-resources/*
-!resources/.gitkeep
+resources/**/*.csv
+resources/**/*.json
 
 .idea
 

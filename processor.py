@@ -1,4 +1,5 @@
-from dict_util import _get_path_or_default
+from commons.configuration_reader import Config
+from dict_util import get_path_or_default
 
 
 class ProcessingException(Exception):
@@ -32,12 +33,12 @@ def _process(item: dict, characteristic_provider):
         if 'template' in characteristic_provider:
             default = characteristic_provider['default']
             path = characteristic_provider['path']
-            value = _get_path_or_default(item, path, default)
+            value = get_path_or_default(item, path, default)
             return _template(characteristic_provider['template'], value)
         if 'predicate' in characteristic_provider:
             default = characteristic_provider['default']
             path = characteristic_provider['path']
-            value = _get_path_or_default(item, path, default)
+            value = get_path_or_default(item, path, default)
             return _predicate(characteristic_provider['predicate'], value, default)
         if 'expression' in characteristic_provider:
             default = characteristic_provider['default']
@@ -45,12 +46,12 @@ def _process(item: dict, characteristic_provider):
 
         default = characteristic_provider['default']
         path = characteristic_provider['path']
-        return _get_path_or_default(item, path, default)
+        return get_path_or_default(item, path, default)
     except Exception as e:
         raise ProcessingException(f"Error when processing {item['id']} with {characteristic_provider}", e)
 
 
-def process_items(processor_config, items: list[dict]) -> list[dict]:
+def process_items(processor_config: dict, items: list[dict]) -> list[dict]:
     processed_items = []
     for item in items:
         processed_item = {}
