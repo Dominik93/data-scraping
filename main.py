@@ -1,3 +1,5 @@
+import argparse
+
 from commons.configuration_reader import read_configuration
 from commons.store import create_store, Storage
 from items_loader import UrlHttpClient, ItemLoader
@@ -41,7 +43,21 @@ def _write(items_to_write):
     write(config, items_to_write)
 
 
+def command_line_parser():
+    parser = argparse.ArgumentParser(description='Data scraping')
+    parser.add_argument("--actions", help='Coma separated actions to perform', required=True)
+    args = parser.parse_args()
+    return args.actions.split(",")
+
+
 if __name__ == '__main__':
-    items = _load()
-    items = _process(items)
-    _write(items)
+    actions = command_line_parser()
+    items = []
+    if 'load' in actions:
+        items = _load()
+    if 'load_stored' in actions:
+        items = _load_stored()
+    if 'process' in actions:
+        items = _process(items)
+    if 'write' in actions:
+        _write(items)
