@@ -39,7 +39,7 @@ def _prepare_row(headers_row, item):
     for header in headers_row:
         value = ""
         if header in item:
-            value = str(item[header])
+            value = "\"" + str(item[header]) + "\""
         row.append(value)
     return row
 
