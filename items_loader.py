@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 
 from commons.configuration_reader import read_configuration, Config
 from commons.countable_processor import CountableProcessor, ExceptionStrategy
+from commons.logger import get_logger
 from commons.optional import of
 from dict_util import get_path_or_default
 
@@ -34,13 +35,15 @@ class HttpClient:
 
 class UrlHttpClient(HttpClient):
 
+    def __init__(self):
+        self.logger = get_logger("UrlHttpClient")
+
     def call(self, req):
         try:
             response = urlopen(req)
             return ApiResponse(response.read(), response.headers)
         except HTTPError as e:
-            print(e.reason)
-            print(e.read())
+            self.logger.error("call", f"Call {req.full_url} failed. Reason: {e.reason} body: {e.read()}")
             raise e
 
 
@@ -48,6 +51,7 @@ class RequestFactory:
 
     def __init__(self, config: Config):
         self.config = config
+        self.logger = get_logger("RequestFactory")
 
     def items_request(self, iterable) -> Request:
         url = self._prepare_items_api_url(iterable)
@@ -58,7 +62,7 @@ class RequestFactory:
         return self._prepare_request(url)
 
     def _prepare_request(self, url: str) -> Request:
-        print(f'{url}')
+        self.logger.info("_prepare_request", f'{url}')
         req = Request(url)
         self._add_headers(req)
         return req
@@ -118,6 +122,7 @@ class ItemLoader:
         self.config = config
         self.client = client
         self.request_factory = RequestFactory(config)
+        self.logger = get_logger("ItemLoader")
 
     def load_items(self, stored_items_by_id: dict) -> list[dict]:
         all_items = self._get_pages()
@@ -143,7 +148,7 @@ class ItemLoader:
         id_provider = self.config.get_value("items_api.response.id")
         item_id = get_path_or_default(item, id_provider, "")
         if item_id in cached_items:
-            print(f"Details {item_id} is cached")
+            self.logger.info("_load", f"Details {item_id} is cached")
             return cached_items[item_id]
         details = self._get_details(item)
         return {"id": item_id, items_save_as: item, details_save_as: details}
@@ -167,7 +172,7 @@ class ItemLoader:
             response = self.client.call(request)
             return self._get_response(response)
         except Exception as e:
-            print(f"An exception occurred when get details. {e}")
+            self.logger.error("_load", f"An exception occurred when get details. {e}")
             raise LoadException(f"An exception occurred when get details")
 
     def _get_response(self, response):

@@ -1,5 +1,7 @@
-from commons.configuration_reader import Config
+from commons.logger import get_logger
 from dict_util import get_path_or_default
+
+logger = get_logger("Processor")
 
 
 class ProcessingException(Exception):
@@ -24,7 +26,7 @@ def _expression(expression: str, current_item, default):
         current = current_item['current']
         return eval(expression)
     except Exception as e:
-        print(f"Warning: eval {expression} failed. Error: {e}")
+        logger.warn("_expression", f"Eval {expression} failed fallback to default: {default}. Error: {e}")
         return default
 
 

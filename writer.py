@@ -1,4 +1,7 @@
 from commons.csv_writer import write as csv_write
+from commons.logger import get_logger
+
+logger = get_logger("Writer")
 
 
 def _compare(compare_type, item_value, value):
@@ -40,7 +43,7 @@ def _filter_items(config, items):
 def write(config, items):
     for writer in config:
         file_name = writer['file']
-        print(f'Write {file_name}')
+        logger.info("write", f'Write {file_name}')
         properties = writer['properties']
         separator = writer['separator']
         filtered_items = _filter_items(writer, items)
