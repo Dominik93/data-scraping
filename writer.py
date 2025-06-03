@@ -7,6 +7,8 @@ logger = get_logger("Writer")
 def _compare(compare_type, item_value, value):
     if compare_type == 'equals':
         return value == item_value
+    if compare_type == 'notEquals':
+        return value != item_value
     return False
 
 

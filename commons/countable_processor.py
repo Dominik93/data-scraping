@@ -1,7 +1,7 @@
 import time
 from enum import Enum
 
-from logger import get_logger
+from .logger import get_logger
 
 
 class ExceptionStrategy(Enum):
